@@ -13,20 +13,17 @@ for SPLIT in "2M" "all" "val_id"; do
 done
 ```
 
-2M:
+On 1 GPU to debug:
 ```bash
-python main.py --mode train --config-yml configs/s2ef/2M/equiformer_v2/equiformer_v2_N@12_L@6_M@2.yml
-python main.py --mode train --config-yml configs/s2ef/2M/baseline/baseline.yml
+CONFIG="configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml"
+CONFIG="configs/s2ef/all/baseline/baseline.yml"
+python main.py --mode train --config-yml $CONFIG
 ```
 
-All 1 GPU:
+With submitit:
 ```bash
-python main.py --mode train --config-yml configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml
-python main.py --mode train --config-yml configs/s2ef/all/baseline/baseline.yml
-```
-
-All 8 GPUs:
-```bash
-python -u -m torch.distributed.launch --nproc_per_node=8 main.py --mode train --config-yml configs/s2ef/all/baseline/baseline.yml --num-gpus 8 --distributed
-python -u -m torch.distributed.launch --nproc_per_node=8 main.py --mode train --config-yml configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml --num-gpus 8 --distributed
+CONFIG="configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml"
+CONFIG="configs/s2ef/all/baseline/baseline.yml"
+python main.py --distributed --num-gpus 8 --num-nodes 1 \
+    --identifier "$(date +%y%m%d)_exp" --submit --mode train --config-yml $CONFIG
 ```

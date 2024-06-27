@@ -16,7 +16,8 @@ dataset:
           mean: 0
           stdev: 2.887317180633545
   val:
-    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id/
+    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id_small/
+    # src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id/
 
 logger: wandb
 
@@ -49,3 +50,7 @@ evaluation_metrics:
     misc:
       - energy_forces_within_threshold
   primary_metric: forces_mae
+
+slurm:
+  partition: priority
+  constraint: h100-reserved

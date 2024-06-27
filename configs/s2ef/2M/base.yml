@@ -16,7 +16,8 @@ dataset:
           mean: 0
           stdev: 2.887317180633545
   val:
-    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id/
+    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id_small/
+    # src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id/
 
 logger: wandb
 

@@ -38,7 +38,7 @@ optim:
   warmup_factor: 0.2
   optimizer: AdamW
   optimizer_params: {"amsgrad": True}
-  eval_every: 5000
+  eval_every: 10000
   max_epochs: 12
   clip_grad_norm: 20
   ema_decay: 0.999
