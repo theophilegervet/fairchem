@@ -253,8 +253,6 @@ class Baseline(BaseModel):
         pred_as_dict (bool): Set to False to return a (property) prediction tensor.
             By default, predictions are returned as a dictionary with several keys (e.g. energy, forces)
             (default: :obj:`True`)
-        regress_forces (str): Specifies if we predict forces or not, and how
-            do we predict them. (`None` or `""`, `"direct"`, `"direct_with_gradient_target"`)
         force_decoder_type (str): Specifies the type of force decoder
             (`"simple"`, `"mlp"`, `"res"`, `"res_updown"`)
         force_decoder_model_config (dict): contains information about the
@@ -287,7 +285,7 @@ class Baseline(BaseModel):
         out_dim: int = 1,
         pred_as_dict: bool = True,
         force_decoder_type: Optional[str] = "mlp",
-        force_decoder_model_config: Optional[dict] = {"mlp": {"hidden_channels": 128}},
+        force_decoder_model_config: Optional[dict] = {"mlp": {"hidden_channels": 256}},
     ):
         super(Baseline, self).__init__()
 

@@ -19,8 +19,14 @@ python main.py --mode train --config-yml configs/s2ef/2M/equiformer_v2/equiforme
 python main.py --mode train --config-yml configs/s2ef/2M/baseline/baseline.yml
 ```
 
-All:
+All 1 GPU:
 ```bash
-python main.py --mode train --config-yml configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml --num_gpus 8
-python main.py --mode train --config-yml configs/s2ef/all/baseline/baseline.yml --num_gpus 8
+python main.py --mode train --config-yml configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml
+python main.py --mode train --config-yml configs/s2ef/all/baseline/baseline.yml
+```
+
+All 8 GPUs:
+```bash
+python -u -m torch.distributed.launch --nproc_per_node=8 main.py --mode train --config-yml configs/s2ef/all/baseline/baseline.yml --num-gpus 8 --distributed
+python -u -m torch.distributed.launch --nproc_per_node=8 main.py --mode train --config-yml configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml --num-gpus 8 --distributed
 ```

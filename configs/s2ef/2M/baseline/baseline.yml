@@ -3,6 +3,7 @@ includes:
 
 model:
   name: baseline
+  otf_graph: true
 
 optim:
   batch_size: 500

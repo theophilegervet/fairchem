@@ -4,12 +4,31 @@ includes:
 model:
   name: baseline
   otf_graph: true
+  cutoff: 6.0
+
+  # paper config: 5,595,989 params
+  # num_interactions: 5
+  # hidden_channels: 384
+  # num_filters: 480
+  # num_gaussians: 104
+  # tag_hidden_channels: 64
+  # pg_hidden_channels: 64
+  # skip_co: concat
+
+  # bigger: 161,570,142 params
+  num_interactions: 30
+  hidden_channels: 1024
+  num_filters: 1024
+  num_gaussians: 256
+  tag_hidden_channels: 256
+  pg_hidden_channels: 256
+  skip_co: add
 
 optim:
-  batch_size: 500
-  eval_batch_size: 500
+  batch_size: 10
+  eval_batch_size: 10
   num_workers: 8
-  lr_initial: 0.00025
+  lr_initial: 0.0002
   lr_gamma: 0.3
   lr_milestones: # steps at which lr_initial <- lr_initial * lr_gamma
     - 150000
