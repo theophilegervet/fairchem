@@ -3,7 +3,7 @@ trainer: ocp
 dataset:
   train:
     format: lmdb
-    src: data/s2ef/all/train/
+    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/train/
     key_mapping:
       y: energy
       force: forces
@@ -16,7 +16,7 @@ dataset:
           mean: 0
           stdev: 2.887317180633545
   val:
-    src: data/s2ef/all/val_id/
+    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id/
 
 logger: wandb
 
@@ -33,7 +33,7 @@ outputs:
 loss_functions:
   - energy:
       fn: mae
-      coefficient: 1
+      coefficient: 2
   - forces:
       fn: l2mae
       coefficient: 100

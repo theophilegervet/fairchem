@@ -1,8 +1,9 @@
 includes:
-  - configs/s2ef/2M/base.yml
+  - configs/s2ef/all/base.yml
 
 model:
   name: baseline
+  otf_graph: true
 
 optim:
   batch_size: 500

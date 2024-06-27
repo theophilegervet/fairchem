@@ -530,7 +530,22 @@ def get_pbc_distances(
     neighbors,
     return_offsets: bool = False,
     return_distance_vec: bool = False,
-):
+) -> dict:
+    """Compute distances between atoms with periodic boundary conditions
+
+    Args:
+        pos (tensor): (N, 3) tensor of atomic positions
+        edge_index (tensor): (2, E) tensor of edge indices
+        cell (tensor): (3, 3) tensor of cell vectors
+        cell_offsets (tensor): (N, 3) tensor of cell offsets
+        neighbors (tensor): (N, 3) tensor of neighbor indices
+        return_offsets (bool): return the offsets
+        return_distance_vec (bool): return the relative positions vectors
+
+    Returns:
+        (dict): dictionary with the updated edge_index, atom distances,
+            and optionally the offsets and distance vectors.
+    """
     row, col = edge_index
 
     distance_vectors = pos[row] - pos[col]

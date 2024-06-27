@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -13,12 +13,7 @@ from fairchem.core.common.utils import conditional_grad
 from fairchem.core.models.base import BaseModel
 from fairchem.core.models.baseline.embedding import EmbeddingBlock
 from fairchem.core.models.baseline.force_decoder import ForceDecoder
-from fairchem.core.models.baseline.utils import (
-    GaussianSmearing,
-    base_preprocess,
-    pbc_preprocess,
-    swish,
-)
+from fairchem.core.models.baseline.utils import GaussianSmearing, swish
 
 
 class InteractionBlock(MessagePassing):
@@ -34,7 +29,9 @@ class InteractionBlock(MessagePassing):
         graph_norm,
     ):
         super(InteractionBlock, self).__init__()
+
         self.regress_forces = True
+
         self.act = act
         self.mp_type = mp_type
         self.hidden_channels = hidden_channels
@@ -219,16 +216,8 @@ class Baseline(BaseModel):
     Args:
         cutoff (float): Cutoff distance for interatomic interactions.
             (default: :obj:`6.0`)
-        preprocess (callable): Pre-processing function for the data. This function
-            should accept a data object as input and return a tuple containing the following:
-            atomic numbers, batch indices, final adjacency, relative positions, pairwise distances.
-            Examples of valid preprocessing functions include `pbc_preprocess`,
-            `base_preprocess`, or custom functions.
         act (str): Activation function
             (default: `swish`)
-        max_num_neighbors (int): The maximum number of neighbors to
-            collect for each node within the :attr:`cutoff` distance.
-            (default: `40`)
         hidden_channels (int): Hidden embedding size.
             (default: `128`)
         tag_hidden_channels (int): Hidden tag embedding size.
@@ -277,10 +266,10 @@ class Baseline(BaseModel):
         num_atoms: int,  # not used
         bond_feat_dim: int,  # not used
         num_targets: int,  # not used
+        otf_graph: bool,  # not used
         cutoff: float = 6.0,
-        preprocess: Union[str, callable] = "pbc_preprocess",
+        max_neighbors: int = 40,
         act: str = "swish",
-        max_num_neighbors: int = 40,
         hidden_channels: int = 128,
         tag_hidden_channels: int = 32,
         pg_hidden_channels: int = 32,
@@ -297,12 +286,17 @@ class Baseline(BaseModel):
         energy_head: Optional[str] = None,
         out_dim: int = 1,
         pred_as_dict: bool = True,
-        regress_forces: bool = True,
         force_decoder_type: Optional[str] = "mlp",
         force_decoder_model_config: Optional[dict] = {"mlp": {"hidden_channels": 128}},
     ):
         super(Baseline, self).__init__()
 
+        self.regress_forces = True
+        self.otf_graph = True
+        self.use_pbc = True
+        self.enforce_max_neighbors_strictly = True
+
+        self.max_neighbors = max_neighbors
         self.act = act
         self.complex_mp = complex_mp
         self.cutoff = cutoff
@@ -311,7 +305,6 @@ class Baseline(BaseModel):
         self.force_decoder_model_config = force_decoder_model_config
         self.graph_norm = graph_norm
         self.hidden_channels = hidden_channels
-        self.max_num_neighbors = max_num_neighbors
         self.mp_type = mp_type
         self.num_filters = num_filters
         self.num_gaussians = num_gaussians
@@ -319,15 +312,10 @@ class Baseline(BaseModel):
         self.pg_hidden_channels = pg_hidden_channels
         self.phys_embeds = phys_embeds
         self.phys_hidden_channels = phys_hidden_channels
-        self.regress_forces = regress_forces
         self.second_layer_MLP = second_layer_MLP
         self.skip_co = skip_co
         self.tag_hidden_channels = tag_hidden_channels
-        self.preprocess = preprocess
         self.pred_as_dict = pred_as_dict
-
-        if isinstance(self.preprocess, str):
-            self.preprocess = eval(self.preprocess)
 
         if self.mp_type == "simple":
             self.num_filters = self.hidden_channels
@@ -399,14 +387,11 @@ class Baseline(BaseModel):
                 self.hidden_channels,
             )
 
-    def forward(self, data, mode="train", preproc=True):
+    def forward(self, data, mode="train"):
         """Main Forward pass.
 
         Args:
             data (Data): input data object, with 3D atom positions (pos)
-            mode (str): train or inference mode
-            preproc (bool): Whether to preprocess (pbc, cutoff graph)
-                the input graph or point cloud. Default: True.
 
         Returns:
             (dict): predicted energy, forces and final atomic hidden states
@@ -416,7 +401,7 @@ class Baseline(BaseModel):
             data.pos.requires_grad_(True)
 
         # predict energy and forces
-        preds = self.energy_forward(data, preproc)
+        preds = self.energy_forward(data)
         preds["forces"] = self.forces_forward(preds)
 
         return preds
@@ -436,33 +421,31 @@ class Baseline(BaseModel):
         if self.decoder:
             return self.decoder(preds["hidden_state"])
 
-    def energy_forward(self, data, preproc=True):
+    def energy_forward(self, data):
         """Predicts any graph-level property (e.g. energy) for 3D atomic systems.
 
         Args:
             data (data.Batch): Batch of graphs data objects.
-            preproc (bool): Whether to apply (any given) preprocessing to the graph.
-                Default to True.
 
         Returns:
             (dict): predicted properties for each graph (key: "energy")
                 and final atomic representations (key: "hidden_state")
         """
         # Pre-process data (e.g. pbc, cutoff graph, etc.)
-        # Should output all necessary attributes, in correct format.
-        if preproc:
-            z, batch, edge_index, rel_pos, edge_weight = self.preprocess(
-                data, self.cutoff, self.max_num_neighbors
-            )
-        else:
-            rel_pos = data.pos[data.edge_index[0]] - data.pos[data.edge_index[1]]
-            z, batch, edge_index, rel_pos, edge_weight = (
-                data.atomic_numbers.long(),
-                data.batch,
-                data.edge_index,
-                rel_pos,
-                rel_pos.norm(dim=-1),
-            )
+        (
+            edge_index,
+            _,  # edge_dist
+            rel_pos,
+            _,  # cell_offsets
+            _,  # cell_offset_distances
+            _,  # neighbors
+        ) = self.generate_graph(
+            data,
+            enforce_max_neighbors_strictly=self.enforce_max_neighbors_strictly,
+        )
+        z = data.atomic_numbers.long()
+        batch = data.batch
+        edge_weight = rel_pos.norm(dim=-1)
 
         edge_attr = self.distance_expansion(edge_weight)  # RBF of pairwise distances
         assert z.dim() == 1 and z.dtype == torch.long

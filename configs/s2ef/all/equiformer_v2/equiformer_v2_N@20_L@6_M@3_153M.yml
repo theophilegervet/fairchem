@@ -1,34 +1,7 @@
+includes:
+  - configs/s2ef/all/base.yml
+
 trainer: equiformerv2_forces
-
-dataset:
-  train:
-    format: lmdb
-    src: data/s2ef/all_md/train/
-    key_mapping:
-      y: energy
-      force: forces
-    transforms:
-      normalizer:
-        energy:
-          mean: -0.7554450631141663
-          stdev: 2.887317180633545
-        forces:
-          mean: 0
-          stdev: 2.887317180633545
-  val:
-    src: data/s2ef/all/val_id/
-
-logger: wandb
-
-outputs:
-  energy:
-    shape: 1
-    level: system
-  forces:
-    irrep_dim: 1
-    level: atom
-    train_on_free_atoms: True
-    eval_on_free_atoms: True
 
 loss_functions:
   - energy:
@@ -37,21 +10,6 @@ loss_functions:
   - forces:
       fn: l2mae
       coefficient: 100
-
-evaluation_metrics:
-  metrics:
-    energy:
-      - mae
-    forces:
-      - mae
-      - cosine_similarity
-      - magnitude_error
-    misc:
-      - energy_forces_within_threshold
-  primary_metric: forces_mae
-
-hide_eval_progressbar: False
-
 
 model:
   name: equiformer_v2
@@ -96,8 +54,8 @@ model:
   weight_init:              'uniform'    # ['uniform', 'normal']
 
 optim:
-  batch_size:                   4         # 6
-  eval_batch_size:              4         # 6
+  batch_size:                   3         # 6
+  eval_batch_size:              3         # 6
   load_balancing: atoms
   num_workers: 8
   lr_initial:                   0.0004    # [0.0002, 0.0004], eSCN uses 0.0008 for batch size 96
