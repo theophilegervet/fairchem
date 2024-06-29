@@ -1,32 +1,62 @@
 includes:
   - configs/s2ef/all/base.yml
 
+dataset:
+  train:
+    format: lmdb
+    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/train/
+    key_mapping:
+      y: energy
+      force: forces
+    transforms:
+      normalizer:
+        energy:
+          mean: -0.7554450631141663
+          stdev: 2.887317180633545
+        forces:
+          mean: 0
+          stdev: 2.887317180633545
+      FrameAveraging:
+        frame_averaging: 3D
+        fa_method: stochastic
+      
+  val:
+    src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id_small/
+    # src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id/
+
 model:
   name: baseline
   otf_graph: true
   cutoff: 6.0
+  frame_averaging: 3D
 
   # paper config: 5,595,989 params
-  # num_interactions: 5
-  # hidden_channels: 384
-  # num_filters: 480
-  # num_gaussians: 104
-  # tag_hidden_channels: 64
-  # pg_hidden_channels: 64
-  # skip_co: concat
+  num_interactions: 5
+  hidden_channels: 384
+  num_filters: 480
+  num_gaussians: 104
+  tag_hidden_channels: 64
+  pg_hidden_channels: 64
+  skip_co: concat
 
   # bigger: 161,570,142 params
-  num_interactions: 30
-  hidden_channels: 1024
-  num_filters: 1024
-  num_gaussians: 256
-  tag_hidden_channels: 256
-  pg_hidden_channels: 256
-  skip_co: add
+  # num_interactions: 30
+  # hidden_channels: 1024
+  # num_filters: 1024
+  # num_gaussians: 256
+  # tag_hidden_channels: 256
+  # pg_hidden_channels: 256
+  # skip_co: add
 
 optim:
-  batch_size: 10
-  eval_batch_size: 10
+  # paper config
+  batch_size: 150
+  eval_batch_size: 150
+
+  # bigger
+  # batch_size: 10
+  # eval_batch_size: 10
+
   num_workers: 8
   lr_initial: 0.0002
   lr_gamma: 0.3

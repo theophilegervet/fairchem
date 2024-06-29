@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import torch
 
 from fairchem.core.common.utils import cg_change_mat, irreps_sum
+from fairchem.core.preprocessing.transforms.frame_averaging import FrameAveraging
 
 if TYPE_CHECKING:
     from torch_geometric.data import Data
@@ -19,11 +20,15 @@ class DataTransforms:
             return data_object
 
         for transform_fn in self.config:
-            # TODO: Normalization information used in the trainers. Ignore here
-            # for now.
             if transform_fn == "normalizer":
+                # TODO: Normalization information used in the trainers. Ignore here
+                # for now.
                 continue
-            data_object = eval(transform_fn)(data_object, self.config[transform_fn])
+            elif transform_fn == "FrameAveraging":
+                transform = eval(transform_fn)(**self.config[transform_fn])
+                data_object = transform(data_object)
+            else:
+                data_object = eval(transform_fn)(data_object, self.config[transform_fn])
 
         return data_object
 

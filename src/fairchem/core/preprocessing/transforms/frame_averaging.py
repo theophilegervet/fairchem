@@ -4,7 +4,7 @@ from itertools import product
 
 import torch
 
-from fairchem.core.models.baseline.utils import RandomRotate
+from fairchem.core.preprocessing.transforms.utils import RandomRotate
 
 
 def compute_frames(
