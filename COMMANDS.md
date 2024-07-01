@@ -25,10 +25,13 @@ python main.py --mode train --config-yml $CONFIG
 With submitit:
 ```bash
 CONFIG="configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml"
-EXP=equi
+EXP=e
 
 CONFIG="configs/s2ef/all/baseline/baseline.yml"
-EXP=base
+EXP=b
+
+CONFIG="configs/s2ef/all/baseline/frame_averaging.yml"
+EXP=fa
 
 python main.py --distributed --num-gpus 8 --num-nodes 1 \
     --identifier "$(date +%y%m%d)_$EXP" --submit --mode train --config-yml $CONFIG

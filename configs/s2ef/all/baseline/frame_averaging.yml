@@ -16,6 +16,9 @@ dataset:
         forces:
           mean: 0
           stdev: 2.887317180633545
+      FrameAveraging:
+        frame_averaging: 3D
+        fa_method: stochastic
       
   val:
     src: /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/val_id_small/
@@ -25,6 +28,7 @@ model:
   name: baseline
   otf_graph: true
   cutoff: 6.0
+  frame_averaging: 3D
 
   # paper config: 5,595,989 params
   num_interactions: 5
@@ -53,7 +57,7 @@ optim:
   # batch_size: 10
   # eval_batch_size: 10
 
-  num_workers: 8
+  num_workers: 15
   lr_initial: 0.0002
   lr_gamma: 0.3
   lr_milestones: # steps at which lr_initial <- lr_initial * lr_gamma
