@@ -50,8 +50,8 @@ model:
 
 optim:
   # paper config
-  batch_size: 150
-  eval_batch_size: 150
+  batch_size: 50
+  eval_batch_size: 50
 
   # bigger
   # batch_size: 10

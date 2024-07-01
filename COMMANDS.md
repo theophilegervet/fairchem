@@ -8,8 +8,10 @@ pip install mendeleev
 Download data:
 ```bash
 cd /home/code/fairchem/src/fairchem/core
-for SPLIT in "2M" "all" "val_id"; do
-    python scripts/download_data.py --task s2ef --split "$SPLIT" --num-workers 8 --ref-energy
+NUM_WORKERS=50
+for SPLIT in "all" "val_id"; do
+    python scripts/download_data.py --task s2ef --split "$SPLIT" --num-workers $NUM_WORKERS --ref-energy
+    python scripts/make_lmdb_sizes.py --data-path /mnt/vast/home/theo/code/fairchem/src/fairchem/data/s2ef/all/$SPLIT --num-workers $NUM_WORKERS
 done
 ```
 

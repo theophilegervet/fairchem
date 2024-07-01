@@ -54,3 +54,4 @@ evaluation_metrics:
 slurm:
   partition: priority
   constraint: h100-reserved
+  mem: 200GB
