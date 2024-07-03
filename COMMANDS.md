@@ -18,7 +18,11 @@ done
 On 1 GPU to debug:
 ```bash
 CONFIG="configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml"
+CONFIG="configs/s2ef/all/gemnet/gemnet-oc.yml"
+CONFIG="configs/s2ef/all/schnet/schnet.yml"
+CONFIG="configs/s2ef/all/painn/painn_h512.yml"
 CONFIG="configs/s2ef/all/baseline/baseline.yml"
+CONFIG="configs/s2ef/all/baseline/frame_averaging.yml"
 python main.py --mode train --config-yml $CONFIG
 ```
 
@@ -26,12 +30,16 @@ With submitit:
 ```bash
 CONFIG="configs/s2ef/all/equiformer_v2/equiformer_v2_N@20_L@6_M@3_153M.yml"
 EXP=e
-
+CONFIG="configs/s2ef/all/gemnet/gemnet-oc.yml"
+EXP=g
+CONFIG="configs/s2ef/all/schnet/schnet.yml"
+EXP=s
+CONFIG="configs/s2ef/all/painn/painn_h512.yml"
+EXP=p
 CONFIG="configs/s2ef/all/baseline/baseline.yml"
 EXP=b
-
 CONFIG="configs/s2ef/all/baseline/frame_averaging.yml"
-EXP=fa
+EXP=f
 
 python main.py --distributed --num-gpus 8 --num-nodes 1 \
     --identifier "$(date +%y%m%d)_$EXP" --submit --mode train --config-yml $CONFIG

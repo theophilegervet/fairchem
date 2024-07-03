@@ -3,6 +3,7 @@ includes:
 
 model:
   name: gemnet_oc
+  otf_graph: true
   num_spherical: 7
   num_radial: 128
   num_blocks: 4

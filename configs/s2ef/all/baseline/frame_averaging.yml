@@ -50,13 +50,14 @@ model:
 
 optim:
   # paper config
-  batch_size: 50
-  eval_batch_size: 50
+  batch_size: 5
+  eval_batch_size: 5
 
   # bigger
   # batch_size: 10
   # eval_batch_size: 10
 
+  load_balancing: atoms
   num_workers: 15
   lr_initial: 0.0002
   lr_gamma: 0.3

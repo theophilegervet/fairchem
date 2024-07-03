@@ -3,6 +3,7 @@ includes:
 
 model:
   name: painn
+  otf_graph: true
   hidden_channels: 512
   num_layers: 6
   num_rbf: 128
