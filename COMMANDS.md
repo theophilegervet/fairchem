@@ -23,6 +23,7 @@ CONFIG="configs/s2ef/all/schnet/schnet.yml"
 CONFIG="configs/s2ef/all/painn/painn_h512.yml"
 CONFIG="configs/s2ef/all/baseline/baseline.yml"
 CONFIG="configs/s2ef/all/baseline/frame_averaging.yml"
+CONFIG="configs/s2ef/all/baseline/debug.yml"
 python main.py --mode train --config-yml $CONFIG
 ```
 
@@ -40,6 +41,8 @@ CONFIG="configs/s2ef/all/baseline/baseline.yml"
 EXP=b
 CONFIG="configs/s2ef/all/baseline/frame_averaging.yml"
 EXP=f
+CONFIG="configs/s2ef/all/baseline/debug.yml"
+EXP=d
 
 python main.py --distributed --num-gpus 8 --num-nodes 1 \
     --identifier "$(date +%y%m%d)_$EXP" --submit --mode train --config-yml $CONFIG
